@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-config
+  namespace: ecommerce
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-service:3306/ecommerce_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+  SPRING_DATASOURCE_USERNAME: "ecommerce_user"
+  DB_HOST: "mysql-service"
+  DB_PORT: "3306"
+  DB_NAME: "ecommerce_db"
+  JWT_EXPIRATION: "86400000"
+  JWT_REFRESH_EXPIRATION: "604800000"
+  APP_NAME: "ecommerce-backend"
+  REACT_APP_API_URL: "https://api.ecommerce.com/api/v1"

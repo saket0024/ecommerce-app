@@ -1,0 +1,33 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backend
+backend/target/
+backend/.mvn/
+!backend/.mvn/wrapper/
+
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+
+# Docker
+*.log
+
+# Kubernetes secrets (never commit real secrets)
+k8s/secrets.yaml
