@@ -11,12 +11,12 @@ WORKDIR /app
 RUN apk add --no-cache maven
 COPY pom.xml .
 
-# Download dependencies
-RUN mvn dependency:go-offline -B 2>/dev/null || true
+# Download dependencies (BuildKit cache mount keeps ~/.m2 across builds)
+RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline -B
 
 # Copy source and build
 COPY src ./src
-RUN mvn clean package -DskipTests -B
+RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -B
 
 # Stage 2: Runtime
 FROM eclipse-temurin:17-jre-alpine AS runtime
