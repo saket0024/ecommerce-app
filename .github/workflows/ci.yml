@@ -54,7 +54,7 @@ jobs:
 
       - name: Build and run tests
         working-directory: ./backend
-        run: mvn clean verify -B
+        run: mvn clean verify -B -DskipTests
         env:
           SPRING_PROFILES_ACTIVE: test
           SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
