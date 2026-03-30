@@ -16,8 +16,12 @@ Thumbs.db
 
 # Backend
 backend/target/
+backend/bin/
 backend/.mvn/
 !backend/.mvn/wrapper/
+backend/.settings/
+backend/.classpath
+backend/.project
 
 # Frontend
 frontend/node_modules/

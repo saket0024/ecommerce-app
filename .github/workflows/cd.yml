@@ -125,11 +125,11 @@ jobs:
 
       - name: Update backend image tag
         run: |
-          sed -i "s|ghcr.io/your-org/ecommerce-backend:latest|${{ env.BACKEND_IMAGE }}:${{ github.sha }}|g" k8s/backend-deployment.yaml
+          sed -i "s|ghcr.io/saket0024/ecommerce-backend:latest|${{ env.BACKEND_IMAGE }}:${{ github.sha }}|g" k8s/backend-deployment.yaml
 
       - name: Update frontend image tag
         run: |
-          sed -i "s|ghcr.io/your-org/ecommerce-frontend:latest|${{ env.FRONTEND_IMAGE }}:${{ github.sha }}|g" k8s/frontend-deployment.yaml
+          sed -i "s|ghcr.io/saket0024/ecommerce-frontend:latest|${{ env.FRONTEND_IMAGE }}:${{ github.sha }}|g" k8s/frontend-deployment.yaml
 
       - name: Deploy MySQL StatefulSet
         run: kubectl apply -f k8s/mysql-statefulset.yaml

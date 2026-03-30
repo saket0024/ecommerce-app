@@ -7,10 +7,10 @@ resources:
 
 # Replace remote image names with locally built ones
 images:
-  - name: ghcr.io/your-org/ecommerce-backend
+  - name: ghcr.io/saket0024/ecommerce-backend
     newName: ecommerce-backend
     newTag: local
-  - name: ghcr.io/your-org/ecommerce-frontend
+  - name: ghcr.io/saket0024/ecommerce-frontend
     newName: ecommerce-frontend
     newTag: local
 
