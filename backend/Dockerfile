@@ -7,13 +7,11 @@ FROM eclipse-temurin:17-jdk-alpine AS builder
 
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml first (for layer caching)
+# Install Maven and copy pom.xml first (for layer caching)
+RUN apk add --no-cache maven
 COPY pom.xml .
-COPY .mvn/ .mvn/
-RUN apk add --no-cache maven || true
 
 # Download dependencies
-COPY pom.xml .
 RUN mvn dependency:go-offline -B 2>/dev/null || true
 
 # Copy source and build

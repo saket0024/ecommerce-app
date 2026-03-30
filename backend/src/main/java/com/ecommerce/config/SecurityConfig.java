@@ -42,6 +42,7 @@ public class SecurityConfig {
                 return corsConfig;
             }))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()

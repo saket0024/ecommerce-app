@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: ecommerce
+  labels:
+    app: backend
+    version: "1.0"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for MySQL at mysql-service:3306..."
+              until nc -z mysql-service 3306; do
+                echo "MySQL not ready yet, retrying in 5s..."
+                sleep 5
+              done
+              echo "MySQL is up!"
+      containers:
+        - name: backend
+          image: ghcr.io/your-org/ecommerce-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: SPRING_PROFILES_ACTIVE
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secrets
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secrets
+                  key: JWT_SECRET
+            - name: JWT_EXPIRATION
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: JWT_EXPIRATION
+            - name: LOGGING_LEVEL_ROOT
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: LOGGING_LEVEL_ROOT
+            - name: LOGGING_LEVEL_COM_ECOMMERCE
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: LOGGING_LEVEL_COM_ECOMMERCE
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+            - name: MANAGEMENT_SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: MANAGEMENT_SERVER_PORT
+            - name: SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          # startupProbe gives Spring Boot up to 3 min to start before
+          # liveness/readiness probes kick in — prevents premature kills
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 18        # 30 + 18×10 = 210s max startup time
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10"]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: ecommerce
+  labels:
+    app: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  type: ClusterIP

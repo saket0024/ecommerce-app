@@ -5,6 +5,9 @@ spring:
     hikari:
       maximum-pool-size: 50
       minimum-idle: 10
+      # Retry DB connection on startup — allows MySQL time to initialize
+      connection-timeout: 30000
+      initialization-fail-timeout: -1   # retry indefinitely until connected
 
 logging:
   level:
